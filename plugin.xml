@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+        <name>
+                <lang name="default">phpBBex</lang>
+                <lang name="russian">Интеграция с phpBBex</lang>
+        </name>
+        <author>
+                <lang name="default">135</lang>
+        </author>
+        <homepage>http://4x4krasnodar.ru/</homepage>
+        <version>1.0</version>
+        <requires>
+                <alto>1.1.x</alto>
+        </requires>
+        <description>
+                <lang name="default">Integrate Alto with phpBBex</lang>
+                <lang name="russian">Интеграция phpBBex и Alto CMS</lang>
+        </description>
+</plugin>
