@@ -10,7 +10,7 @@
         <homepage>http://4x4krasnodar.ru/</homepage>
         <version>1.0</version>
         <requires>
-                <alto>1.1.x</alto>
+                <alto>1.0.x</alto>
         </requires>
         <description>
                 <lang name="default">Integrate Alto with phpBBex</lang>

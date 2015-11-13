@@ -8,7 +8,14 @@ class PluginPhpbbex extends Plugin {
         protected $aInherits = array(
             'module' => array(
                 'ModuleSecurity',
+                'ModuleUser',
             ),
+            'mapper' => array(
+                'ModuleUser_MapperUser',
+            ),
+            'entity' => array(
+                'ModuleUser_EntityUser',
+            )
         );
 
         /**
