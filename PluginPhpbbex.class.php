@@ -9,6 +9,7 @@ class PluginPhpbbex extends Plugin {
             'module' => array(
                 'ModuleSecurity',
                 'ModuleUser',
+                'ModuleSession'
             ),
             'mapper' => array(
                 'ModuleUser_MapperUser',

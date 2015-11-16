@@ -8,7 +8,7 @@
                 <lang name="default">135</lang>
         </author>
         <homepage>http://4x4krasnodar.ru/</homepage>
-        <version>1.0</version>
+        <version>develop</version>
         <requires>
                 <alto>1.0.x</alto>
         </requires>
