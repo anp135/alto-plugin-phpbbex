@@ -30,6 +30,33 @@ class PluginPhpbbex_ModuleUser_MapperUser extends PluginPhpbbex_Inherit_ModuleUs
         }
         return $aUsers;
     }
+    public function GetUserBySessionKey($sKey) {
+        //return parent::GetUserBySessionKey($sKey);
+
+        $sForumSessionTable = Config::Get('plugin.phpbbex.forum.dbname') . '.' . Config::Get('plugin.phpbbex.forum.session_table');
+
+        $sql
+            = "
+            SELECT
+				u.*,
+				IF(ua.user_id IS NULL,0,1) as user_is_administrator,
+				IF(fs.session_user_id IS NULL,1,fs.session_user_id) as forum_user_id,
+				ab.banline, ab.banunlim, ab.banactive, ab.bancomment
+			FROM
+				?_user as u
+				LEFT JOIN ?_session as s ON u.user_id = s.user_id
+				LEFT JOIN ?_user_administrator AS ua ON u.user_id=ua.user_id
+				LEFT JOIN ?_adminban AS ab ON u.user_id=ab.user_id AND ab.banactive=1
+				LEFT JOIN " . $sForumSessionTable . " AS fs ON s.session_key = fs.session_id
+		    WHERE
+		        s.session_key = ?
+			";
+        if ($aRow = $this->oDb->selectRow($sql, $sKey)) {
+			$aUser[0] = $aRow;
+            $aUser = E::GetEntityRows('User', $aUser);
+			return $aUser;
+        }
+    }
 }
 
 // EOF

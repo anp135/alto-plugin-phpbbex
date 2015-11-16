@@ -17,10 +17,14 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherit_ModuleUser {
 
     public function Init() {
         $this->oMapper = E::GetMapper(__CLASS__);
+        E::ModuleSession()->Init();
+
+        $this->CheckAuth();
+
 
         // * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
         $iUserId = intval(E::ModuleSession()->Get('user_id', -1));
-        if ($iUserId && ($oUser = $this->GetUserById($iUserId)) && $oUser->getActivate()) {
+        if ($iUserId > 0 && ($oUser = $this->GetUserById($iUserId)) && $oUser->getActivate()) {
             if ($this->oSession = $oUser->getCurrentSession()) {
                 if ($this->oSession->GetSessionExit()) {
                     // Сессия была закрыта
@@ -40,46 +44,6 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherit_ModuleUser {
         if (isset($this->oSession)) {
             $this->UpdateSession();
         }
-
-        return;
-
-        $sSessionUserKey = Config::Get('security.session.user_key');
-        $this->oMapper = Engine::GetMapper('ModuleUser');
-
-        // * Проверяем есть ли у юзера сессия, т.е. залогинен или нет
-        $nUserId = intval($this->Session_Get($sSessionUserKey));
-
-        //135 anonymous
-        if ($nUserId == 1)
-            return;
-
-
-        $this->AutoLogin();
-        return;
-
-        if ($nUserId && ($oUser = $this->GetUserById($nUserId)) && $oUser->getActivate()) {
-            if ($this->oSession = $oUser->getSession()) {
-                if ($this->oSession->GetSessionExit()) {
-                    // Сессия была закрыта
-                    $this->Logout();
-                    return;
-                }
-                /**
-                 * Сюда можно вставить условие на проверку айпишника сессии
-                 */
-                $this->oUserCurrent = $oUser;
-            }
-        }
-        /**
-         * Запускаем автозалогинивание
-         * В куках стоит время на сколько запоминать юзера
-         */
-        $this->AutoLogin();
-
-        // * Обновляем сессию
-        if (isset($this->oSession)) {
-            $this->UpdateSession();
-        }
     }
 
     protected function AutoLogin() {
@@ -93,29 +57,6 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherit_ModuleUser {
                 // Не забываем продлить куку
                 $this->Authorization($oUser, true);
             } else {
-                //$this->Logout();
-            }
-        }
-
-
-        return;
-
-        $sSessionUserKey = Config::Get('security.session.user_key');
-
-        if ($this->oUserCurrent) {
-            return;
-        }
-
-        $sSessionKey = $this->RestoreSessionKey();
-
-        if ($sSessionKey) {
-            $oUser = $this->GetUserBySessionKey($sSessionKey);
-            $nSessionUserId = intval($this->Session_Get($sSessionUserKey));
-            if ($oUser && ($nSessionUserId == $oUser->getId()) || $nSessionUserId == 0) {
-                // Не забываем продлить куку
-                $this->Authorization($oUser, true);
-
-            } elseif (isset($oUser) && $nSessionUserId != $oUser->getId()) {
                 //$this->Logout();
             }
         }
@@ -147,6 +88,70 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherit_ModuleUser {
             $this->oMapper->UpdateSession($this->oSession);
         }
         E::ModuleCache()->Set($data, $sCacheKey, array('session_update'), 'PT20M', true);
+    }
+
+    public function Authorization(ModuleUser_EntityUser $oUser, $bRemember = true, $sSessionKey = null) {
+
+        if (!$oUser->getId() || !$oUser->getActivate()) {
+            return false;
+        }
+
+        // * Получаем ключ текущей сессии
+        if (is_null($sSessionKey)) {
+            $sSessionKey = E::ModuleSession()->GetKey();
+        }
+
+        // * Создаём новую сессию
+        if (!$this->CreateSession($oUser, $sSessionKey)) {
+            return false;
+        }
+
+        // * Запоминаем в сесси юзера
+        E::ModuleSession()->Set('user_id', $oUser->getId());
+        E::ModuleSession()->Set('forum_user_id', $oUser->getForumUserId());
+        $this->oUserCurrent = $oUser;
+
+        // * Ставим куку
+        if ($bRemember) {
+            E::ModuleSession()->SetCookie($this->GetKeyName(), $sSessionKey, Config::Get('sys.cookie.time'));
+        }
+        return true;
+    }
+
+    protected function CheckAuth() {
+        $sSessionKey = session_id();
+
+        if (!$sSessionKey)  return false;
+
+        $iSessionUserId = intval(E::ModuleSession()->Get('user_id', -1));
+        $iSessionForumUserId = intval(E::ModuleSession()->Get('forum_user_id', -1));
+
+        $oUser = $this->GetUserBySessionKey($sSessionKey);
+
+        if($oUser) {
+            if($iSessionUserId > -1 && $iSessionUserId != $oUser->GetId()) {
+                $this->Logout();
+                return false;
+            }
+
+            if($iSessionForumUserId > -1 && $iSessionForumUserId != $oUser->GetForumUserId()) {
+                E::ModuleSession()->Set('forum_user_id', 1);
+                E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.user_id'));
+                return false;
+            }
+
+        }
+        return true;
+    }
+
+    public function GetUserBySessionKey($sKey) {
+        $aUser = $this->oMapper->GetUserBySessionKey($sKey);
+        if($aUser) {
+            $r = $aUser[0];
+        }
+        else $r = null;
+        return $r;
+        //parent::GetUserBySessionKey($sKey);
     }
 }
 ?>
