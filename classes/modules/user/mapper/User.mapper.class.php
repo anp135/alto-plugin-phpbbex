@@ -31,8 +31,6 @@ class PluginPhpbbex_ModuleUser_MapperUser extends PluginPhpbbex_Inherit_ModuleUs
         return $aUsers;
     }
     public function GetUserBySessionKey($sKey) {
-        //return parent::GetUserBySessionKey($sKey);
-
         $sForumSessionTable = Config::Get('plugin.phpbbex.forum.dbname') . '.' . Config::Get('plugin.phpbbex.forum.session_table');
 
         $sql
