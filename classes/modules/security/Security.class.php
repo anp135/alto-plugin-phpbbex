@@ -21,18 +21,28 @@ class PluginPhpbbex_ModuleSecurity extends PluginPhpbbex_Inherit_ModuleSecurity 
         F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/bcrypt.php');
         F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/bcrypt_2y.php');
         F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/bcrypt_wcf2.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/salted_md5.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/phpass.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/convert_password.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/sha1_smf.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/sha1_wcf1.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/sha1.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/md5_phpbb2.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/md5_mybb.php');
+        F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/driver/md5_vb.php');
 
         F::IncludeFile(Plugin::GetPath('phpbbex') . 'libs/phpbb/passwords/manager.php');
     }
 
     public function Salted($sData, $sType = null) {
-        //$phpbbex = new Phpbb\passwords\manager();
+        $phpbb = new Phpbb\passwords\manager();
+        return $phpbb->hash($sData, $sType);
         //return ($sType == 'pass') ? $phpbbex->phpbb_hash($sData) : parent::Salted($sData, $sType);
-        return parent::Salted($sData, $sType);
+        //return parent::Salted($sData, $sType);
     }
     public function CheckSalted($sSalted, $sData, $sType = null) {
         $phpbb = new Phpbb\passwords\manager();
-        return $phpbb->check($sData, '$2y$10$5ICzEIk/Ts9m.IR5/uSjFOrdu9UBcsUVynnOSOKEXby/Lm8elg4WK');
+        return ($phpbb->check($sData, $sSalted)) ? true : false;
         //$phpbbex = new phpbb\passwords\manager();
         //return ($sType == 'pass') ? $phpbbex->phpbb_check_hash(($sData), $sSalted) : parent::CheckSalted($sSalted, $sData, $sType);
         //return parent::CheckSalted($sSalted, $sData, $sType);

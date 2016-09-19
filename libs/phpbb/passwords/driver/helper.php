@@ -16,27 +16,6 @@ namespace phpbb\passwords\driver;
 class helper
 {
 	/**
-	* @var \phpbb\config\config
-	*/
-	protected $config;
-
-	/**
-	* base64 alphabet
-	* @var string
-	*/
-	public $itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-	/**
-	* Construct a driver helper object
-	*
-	* @param \phpbb\config\config $config phpBB configuration
-	*/
-	public function __construct(\phpbb\config\config $config)
-	{
-		$this->config = $config;
-	}
-
-	/**
 	* Base64 encode hash
 	*
 	* @param string $input Input string
@@ -92,23 +71,13 @@ class helper
 	*
 	* @return string Unique id
 	*/
-	public function unique_id($extra = 'c')
-	{
-		static $dss_seeded = false;
+    function unique_id($extra = 'c')
+    {
+        $val = Config::Get('security.salt_pass') . microtime();
+        $val = md5($val);
 
-		$val = $this->config['rand_seed'] . microtime();
-		$val = md5($val);
-		$this->config['rand_seed'] = md5($this->config['rand_seed'] . $val . $extra);
-
-		if ($dss_seeded !== true && ($this->config['rand_seed_last_update'] < time() - rand(1,10)))
-		{
-			$this->config->set('rand_seed_last_update', time(), true);
-			$this->config->set('rand_seed', $this->config['rand_seed'], true);
-			$dss_seeded = true;
-		}
-
-		return substr($val, 4, 16);
-	}
+        return substr($val, 4, 16);
+    }
 
 	/**
 	* Get random salt with specified length

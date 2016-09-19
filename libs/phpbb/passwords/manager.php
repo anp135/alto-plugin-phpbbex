@@ -29,9 +29,17 @@ class manager
         '$wcf2$'    =>  'bcrypt_wcf2',
         '$H$'   =>  'salted_md5',
         '$P$'   =>  'phpass',
-        '$CP$'  =>  'convert_password'
+        '$CP$'  =>  'convert_password',
+        '$smf$' =>  'sha1_smf',
+        '$wcf1$'    =>  'sha1_wcf1',
+        '$sha1$'    =>  'sha1',
+        '$md5_phpbb2$'  =>  'md5_phpbb2',
+        '$md5_mybb$'    =>  'md5_mybb',
+        '$md5_vb$'  =>  'md5_vb'
     );
     protected $convert_flag = false;
+
+    protected $type = false;
 
 	/**
 	* Get the algorithm specified by a specific prefix
@@ -162,7 +170,7 @@ class manager
 		{
 			// Still check MD5 hashes as that is what the installer
 			// will default to for the admin user
-			return $this->get_algorithm('$H$')->check($password, $hash);
+			return driver\salted_md5::check($password, $hash);
 		}
 
         //135
@@ -173,7 +181,24 @@ class manager
             case 'bcrypt_2y':
                 $stored_hash_type = new driver\bcrypt_2y();
                 break;
+            case 'bcrypt_wcf2':
+                $stored_hash_type = new driver\bcrypt_wcf2();
+                break;
+            case 'salted_md5':
+                $stored_hash_type = new driver\salted_md5();
+                break;
+            case 'phpass':
+                $stored_hash_type = new driver\phpass();
+                break;
+            case 'convert_password':
+                $stored_hash_type = new driver\convert_password();
+                break;
+            case 'sha1_smf':
+                $stored_hash_type = new driver\sha1_smf();
+                break;
         }
+
+        if(!$stored_hash_type) return false;
 
 		return $stored_hash_type->check($password, $hash);
 	}
