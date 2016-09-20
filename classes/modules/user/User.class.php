@@ -100,5 +100,12 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherit_ModuleUser {
         $aUser = $this->oMapper->GetUserBySessionKey($sKey);
         return $aUser ? $aUser[0] : null;
     }
+    public function Logout() {
+        // * Удаляем куки phpbb
+        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.phpbb_prefix') . 'u');
+        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.phpbb_prefix') . 'bid');
+        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.phpbb_prefix') . 'k');
+        parent::Logout();
+    }
 }
 ?>
