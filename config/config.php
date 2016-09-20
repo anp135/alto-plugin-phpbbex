@@ -4,7 +4,8 @@ $config = array();
 
 $config['forum']['dbname'] = 'anp135_forum';
 $config['forum']['session_table'] = 'phpbb_sessions';
-$config['cookie']['user_id'] = '4x4krasnodar_u';
+$config['cookie']['user_id'] = 'local_u';
+$config['cookie']['phpbb_prefix'] = 'local_';
 $config['defaults'] = array(
     0 => 'passwords.driver.bcrypt_2y',
     1 => 'passwords.driver.bcrypt',
