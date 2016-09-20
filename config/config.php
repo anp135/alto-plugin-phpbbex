@@ -2,10 +2,11 @@
 
 $config = array();
 
-$config['forum']['dbname'] = 'anp135_forum';
-$config['forum']['session_table'] = 'phpbb_sessions';
-$config['cookie']['user_id'] = 'local_u';
-$config['cookie']['phpbb_prefix'] = 'local_';
+$config['forum']['dbname'] = ''; //Имя базы phpbb
+$config['forum']['session_table'] = 'phpbb_sessions'; //Таблица сессий phpbb
+$config['cookie']['user_id'] = 'site_u'; //Имя куки phpbb с user_id
+$config['cookie']['phpbb_prefix'] = 'site_'; //Префикс phpbb кук для удаления в процессе Logout()
+
 $config['defaults'] = array(
     0 => 'passwords.driver.bcrypt_2y',
     1 => 'passwords.driver.bcrypt',
@@ -26,7 +27,7 @@ $config['type_map'] = array (
     '$md5_mybb$'    =>  'md5_mybb',
     '$md5_vb$'  =>  'md5_vb'
 );
-$config['convert_flag'] = false;
-$config['type'] = '$2y$';
+$config['convert_flag'] = false; //Флаг конвертации хеша. Функция не работает.
+$config['type'] = '$2y$'; //Тип хеширования по умолчанию
 
 return $config;

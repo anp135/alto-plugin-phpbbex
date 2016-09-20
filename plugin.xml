@@ -2,18 +2,18 @@
 <plugin>
         <name>
                 <lang name="default">phpBBex</lang>
-                <lang name="russian">Интеграция с phpBBex</lang>
+                <lang name="russian">Интеграция с phpBB(ex)</lang>
         </name>
         <author>
                 <lang name="default">135</lang>
         </author>
-        <homepage>http://4x4krasnodar.ru/</homepage>
-        <version>develop</version>
+        <homepage>http://vk.com/anp135</homepage>
+        <version>1.2.0</version>
         <requires>
-                <alto>1.0.x</alto>
+                <alto>1.1.x</alto>
         </requires>
         <description>
-                <lang name="default">Integrate Alto with phpBBex</lang>
-                <lang name="russian">Интеграция phpBBex и Alto CMS</lang>
+                <lang name="default">Integrate Alto with phpBB 3.1 (phpBBex 2.0)</lang>
+                <lang name="russian">Интеграция AltoCMS c phpBB 3.1 (phpBBex 2.0)</lang>
         </description>
 </plugin>
