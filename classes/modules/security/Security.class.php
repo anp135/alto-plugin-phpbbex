@@ -36,15 +36,12 @@ class PluginPhpbbex_ModuleSecurity extends PluginPhpbbex_Inherit_ModuleSecurity 
 
     public function Salted($sData, $sType = null) {
         $phpbb = new Phpbb\passwords\manager();
-        return $phpbb->hash($sData, $sType);
-        //return ($sType == 'pass') ? $phpbbex->phpbb_hash($sData) : parent::Salted($sData, $sType);
+        return ($sType == 'pass') ? $phpbb->hash($sData) : parent::Salted($sData, $sType);
         //return parent::Salted($sData, $sType);
     }
     public function CheckSalted($sSalted, $sData, $sType = null) {
         $phpbb = new Phpbb\passwords\manager();
-        return ($phpbb->check($sData, $sSalted)) ? true : false;
-        //$phpbbex = new phpbb\passwords\manager();
-        //return ($sType == 'pass') ? $phpbbex->phpbb_check_hash(($sData), $sSalted) : parent::CheckSalted($sSalted, $sData, $sType);
+        return ($sType == 'pass') ? $phpbb->check(($sData), $sSalted) : parent::CheckSalted($sSalted, $sData, $sType);
         //return parent::CheckSalted($sSalted, $sData, $sType);
     }
 }

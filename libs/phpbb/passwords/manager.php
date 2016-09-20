@@ -39,7 +39,7 @@ class manager
     );
     protected $convert_flag = false;
 
-    protected $type = false;
+    protected $type = '$2y$';
 
 	/**
 	* Get the algorithm specified by a specific prefix
@@ -120,7 +120,7 @@ class manager
 			$type = $this->algorithms[$type]->get_prefix();
 		}
 
-		$type = ($type === '') ? $this->type : $type;
+		$type = ($type === '' || $type === 'pass') ? $this->type : $type;
 
 		if (is_array($type))
 		{
@@ -129,7 +129,29 @@ class manager
 
 		if (isset($this->type_map[$type]))
 		{
-			$hashing_algorithm = $this->type_map[$type];
+			switch ($type) {
+                case '$2a$':
+                    $hashing_algorithm = new driver\bcrypt();
+                    break;
+                case '$2y$':
+                    $hashing_algorithm = new driver\bcrypt_2y();
+                    break;
+                case 'bcrypt_wcf2':
+                    $hashing_algorithm = new driver\bcrypt_wcf2();
+                    break;
+                case 'salted_md5':
+                    $hashing_algorithm = new driver\salted_md5();
+                    break;
+                case 'phpass':
+                    $hashing_algorithm = new driver\phpass();
+                    break;
+                case 'convert_password':
+                    $hashing_algorithm = new driver\convert_password();
+                    break;
+                case 'sha1_smf':
+                    $hashing_algorithm = new driver\sha1_smf();
+                    break;
+            }
 		}
 		else
 		{

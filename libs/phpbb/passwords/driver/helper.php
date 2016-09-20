@@ -15,6 +15,7 @@ namespace phpbb\passwords\driver;
 
 class helper
 {
+    public $itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	/**
 	* Base64 encode hash
 	*
