@@ -1,13 +1,8 @@
 <?php
 /**
 *
-* This file is part of the phpBB Forum Software package.
-*
-* @copyright (c) phpBB Limited <https://www.phpbb.com>
-* @license GNU General Public License, version 2 (GPL-2.0)
-*
-* For full copyright and license information, please see
-* the docs/CREDITS.txt file.
+* This file is cut of part of the phpBB Forum Software package performed by #135
+* for implement phpbb hashing algorithms for using inside AltoCMS
 *
 */
 
@@ -16,30 +11,19 @@ namespace phpbb\passwords;
 class manager
 {
     //135
-    protected $defaults = array (
-        0 => 'passwords.driver.bcrypt_2y',
-        1 => 'passwords.driver.bcrypt',
-        2 => 'passwords.driver.salted_md5',
-        3 => 'passwords.driver.phpass',
-    );
+    protected $defaults;
 
-    protected $type_map = array (
-        '$2a$'  =>  'bcrypt',
-        '$2y$'  =>  'bcrypt_2y',
-        '$wcf2$'    =>  'bcrypt_wcf2',
-        '$H$'   =>  'salted_md5',
-        '$P$'   =>  'phpass',
-        '$CP$'  =>  'convert_password',
-        '$smf$' =>  'sha1_smf',
-        '$wcf1$'    =>  'sha1_wcf1',
-        '$sha1$'    =>  'sha1',
-        '$md5_phpbb2$'  =>  'md5_phpbb2',
-        '$md5_mybb$'    =>  'md5_mybb',
-        '$md5_vb$'  =>  'md5_vb'
-    );
-    protected $convert_flag = false;
+    protected $type_map;
+    protected $convert_flag;
+    protected $type;
 
-    protected $type = '$2y$';
+    public function __construct()
+    {
+        $this->defaults = \Config::Get('plugin.phpbbex.defaults');
+        $this->type_map = \Config::Get('plugin.phpbbex.type_map');
+        $this->convert_flag = \Config::Get('plugin.phpbbex.convert_flag');
+        $this->type = \Config::Get('plugin.phpbbex.type');
+    }
 
 	/**
 	* Get the algorithm specified by a specific prefix
@@ -113,19 +97,7 @@ class manager
 			return false;
 		}
 
-		// Try to retrieve algorithm by service name if type doesn't
-		// start with dollar sign
-		if (!is_array($type) && strpos($type, '$') !== 0 && isset($this->algorithms[$type]))
-		{
-			$type = $this->algorithms[$type]->get_prefix();
-		}
-
 		$type = ($type === '' || $type === 'pass') ? $this->type : $type;
-
-		if (is_array($type))
-		{
-			return $this->combined_hash_password($password, $type);
-		}
 
 		if (isset($this->type_map[$type]))
 		{
@@ -136,20 +108,29 @@ class manager
                 case '$2y$':
                     $hashing_algorithm = new driver\bcrypt_2y();
                     break;
-                case 'bcrypt_wcf2':
+                case '$wcf2$':
                     $hashing_algorithm = new driver\bcrypt_wcf2();
                     break;
-                case 'salted_md5':
+                case '$H$':
                     $hashing_algorithm = new driver\salted_md5();
                     break;
-                case 'phpass':
+                case '$P$':
                     $hashing_algorithm = new driver\phpass();
                     break;
-                case 'convert_password':
+                case '$СP$':
                     $hashing_algorithm = new driver\convert_password();
                     break;
-                case 'sha1_smf':
+                case '$smf$':
                     $hashing_algorithm = new driver\sha1_smf();
+                    break;
+                case '$md5_phpbb2$':
+                    $hashing_algorithm = new driver\md5_phpbb2();
+                    break;
+                case '$md5_mybb$':
+                    $hashing_algorithm = new driver\md5_mybb();
+                    break;
+                case '$md5_vb$':
+                    $hashing_algorithm = new driver\md5_vb();
                     break;
             }
 		}
@@ -167,7 +148,7 @@ class manager
 	*
 	* @param string $password Password that should be checked
 	* @param string $hash Stored hash
-	* @param array	$user_row User's row in users table
+	* @param array	$user_row not used
 	* @return string|bool True if password is correct, false if not
 	*/
 	public function check($password, $hash, $user_row = array())
@@ -217,6 +198,15 @@ class manager
                 break;
             case 'sha1_smf':
                 $stored_hash_type = new driver\sha1_smf();
+                break;
+            case 'md5_phpbb2':
+                $stored_hash_type = new driver\md5_phpbb2();
+                break;
+            case 'md5_mybb':
+                $stored_hash_type = new driver\md5_mybb();
+                break;
+            case 'md5_vb':
+                $stored_hash_type = new driver\md5_vb();
                 break;
         }
 
