@@ -173,7 +173,7 @@ class manager
 		{
 			// Still check MD5 hashes as that is what the installer
 			// will default to for the admin user
-			return driver\salted_md5::check($password, $hash);
+			return (new driver\salted_md5)->check($password, $hash);
 		}
 
         //135
