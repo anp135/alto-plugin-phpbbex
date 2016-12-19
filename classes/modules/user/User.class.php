@@ -1,6 +1,6 @@
 <?php
 
-class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherit_ModuleUser {
+class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherits_ModuleUser {
 
     protected $oMapper;
 

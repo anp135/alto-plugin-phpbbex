@@ -1,6 +1,6 @@
 <?php
 
-class PluginPhpbbex_ModuleUser_MapperUser extends PluginPhpbbex_Inherit_ModuleUser_MapperUser {
+class PluginPhpbbex_ModuleUser_MapperUser extends PluginPhpbbex_Inherits_ModuleUser_MapperUser {
     public function GetUsersByArrayId($aUsersId) {
 
         if (!is_array($aUsersId) || count($aUsersId) == 0) {
