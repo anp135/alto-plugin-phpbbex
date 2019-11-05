@@ -4,7 +4,7 @@ if (!class_exists('Plugin')) {
 	die('Hacking attempt!');
 }
 
-class PluginPhpbbex extends Plugin {
+class PluginPhpbb extends Plugin {
         protected $aInherits = array(
             'module' => array(
                 'ModuleSecurity',

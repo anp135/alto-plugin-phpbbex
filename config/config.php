@@ -2,10 +2,10 @@
 
 $config = array();
 
-$config['forum']['dbname'] = 'anp135_forum';
+$config['forum']['dbname'] = 'phpbb';
 $config['forum']['session_table'] = 'phpbb_sessions';
-$config['cookie']['user_id'] = 'local_u';
-$config['cookie']['phpbb_prefix'] = 'local_';
+$config['cookie']['user_id'] = 'phpbb3_u';
+$config['cookie']['phpbb_prefix'] = 'phpbb3_';
 $config['defaults'] = array(
     0 => 'passwords.driver.bcrypt_2y',
     1 => 'passwords.driver.bcrypt',

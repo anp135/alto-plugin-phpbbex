@@ -1,6 +1,6 @@
 <?php
 
-class PluginPhpbbex_ModuleUser_EntityUser extends PluginPhpbbex_Inherits_ModuleUser_EntityUser {
+class PluginPhpbb_ModuleUser_EntityUser extends PluginPhpbb_Inherits_ModuleUser_EntityUser {
     public function Init() {
         parent::Init();
     }

@@ -1,6 +1,6 @@
 <?php
 
-class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherits_ModuleUser {
+class PluginPhpbb_ModuleUser extends PluginPhpbb_Inherits_ModuleUser {
 
     protected $oMapper;
 
@@ -66,7 +66,7 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherits_ModuleUser {
         // * Ставим куку
         if ($bRemember) {
             E::ModuleSession()->SetCookie($this->GetKeyName(), $sSessionKey, Config::Get('sys.cookie.time'));
-            E::ModuleSession()->SetCookie(Config::Get('plugin.phpbbex.cookie.user_id'), $oUser->getForumUserId(), Config::Get('sys.cookie.time'));
+            E::ModuleSession()->SetCookie(Config::Get('plugin.phpbb.cookie.user_id'), $oUser->getForumUserId(), Config::Get('sys.cookie.time'));
         }
         return true;
     }
@@ -89,7 +89,7 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherits_ModuleUser {
 
             if($iSessionForumUserId > -1 && $iSessionForumUserId != $oUser->GetForumUserId()) {
                 E::ModuleSession()->Set('forum_user_id', 1);
-                E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.user_id'));
+                E::ModuleSession()->DelCookie(Config::Get('plugin.phpbb.cookie.user_id'));
                 return false;
             }
         }
@@ -102,9 +102,9 @@ class PluginPhpbbex_ModuleUser extends PluginPhpbbex_Inherits_ModuleUser {
     }
     public function Logout() {
         // * Удаляем куки phpbb
-        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.phpbb_prefix') . 'u');
-        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.phpbb_prefix') . 'bid');
-        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbbex.cookie.phpbb_prefix') . 'k');
+        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbb.cookie.phpbb_prefix') . 'u');
+        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbb.cookie.phpbb_prefix') . 'bid');
+        E::ModuleSession()->DelCookie(Config::Get('plugin.phpbb.cookie.phpbb_prefix') . 'k');
         parent::Logout();
     }
 }

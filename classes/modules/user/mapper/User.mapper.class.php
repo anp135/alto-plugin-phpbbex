@@ -1,13 +1,13 @@
 <?php
 
-class PluginPhpbbex_ModuleUser_MapperUser extends PluginPhpbbex_Inherits_ModuleUser_MapperUser {
+class PluginPhpbb_ModuleUser_MapperUser extends PluginPhpbb_Inherits_ModuleUser_MapperUser {
     public function GetUsersByArrayId($aUsersId) {
 
         if (!is_array($aUsersId) || count($aUsersId) == 0) {
             return array();
         }
 
-        $sForumUserTable = '`' . Config::Get('plugin.phpbbex.forum.dbname') . '`.' . Config::Get('plugin.phpbbex.forum.user_table');
+        $sForumUserTable = '`' . Config::Get('plugin.phpbb.forum.dbname') . '`.' . Config::Get('plugin.phpbb.forum.user_table');
 
         $sql
             = "
@@ -33,7 +33,7 @@ class PluginPhpbbex_ModuleUser_MapperUser extends PluginPhpbbex_Inherits_ModuleU
         return $aUsers;
     }
     public function GetUserBySessionKey($sKey) {
-        $sForumSessionTable = '`' . Config::Get('plugin.phpbbex.forum.dbname') . '`.' . Config::Get('plugin.phpbbex.forum.session_table');
+        $sForumSessionTable = '`' . Config::Get('plugin.phpbb.forum.dbname') . '`.' . Config::Get('plugin.phpbb.forum.session_table');
 
         $sql
             = "

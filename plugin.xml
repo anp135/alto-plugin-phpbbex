@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
         <name>
-                <lang name="default">phpBBex</lang>
-                <lang name="russian">Интеграция с phpBBex</lang>
+                <lang name="default">phpBB</lang>
+                <lang name="russian">Интеграция с phpBB</lang>
         </name>
         <author>
                 <lang name="default">135</lang>
@@ -13,7 +13,7 @@
                 <alto>1.0.x</alto>
         </requires>
         <description>
-                <lang name="default">Integrate Alto with phpBBex</lang>
-                <lang name="russian">Интеграция phpBBex и Alto CMS</lang>
+                <lang name="default">Integrate Alto with phpBB</lang>
+                <lang name="russian">Интеграция phpBB и Alto CMS</lang>
         </description>
 </plugin>

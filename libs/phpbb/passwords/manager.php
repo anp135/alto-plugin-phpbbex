@@ -19,10 +19,10 @@ class manager
 
     public function __construct()
     {
-        $this->defaults = \Config::Get('plugin.phpbbex.defaults');
-        $this->type_map = \Config::Get('plugin.phpbbex.type_map');
-        $this->convert_flag = \Config::Get('plugin.phpbbex.convert_flag');
-        $this->type = \Config::Get('plugin.phpbbex.type');
+        $this->defaults = \Config::Get('plugin.phpbb.defaults');
+        $this->type_map = \Config::Get('plugin.phpbb.type_map');
+        $this->convert_flag = \Config::Get('plugin.phpbb.convert_flag');
+        $this->type = \Config::Get('plugin.phpbb.type');
     }
 
 	/**

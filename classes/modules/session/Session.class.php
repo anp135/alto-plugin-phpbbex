@@ -20,7 +20,7 @@
  * @package engine.modules
  * @since 1.0
  */
-class PluginPhpbbex_ModuleSession extends PluginPhpbbex_Inherit_ModuleSession {
+class PluginPhpbb_ModuleSession extends PluginPhpbb_Inherit_ModuleSession {
     protected $sId = null;
     protected $aData = array();
     protected $aFlashUserAgent = array(
