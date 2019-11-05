@@ -7,7 +7,7 @@ class PluginPhpbb_ModuleUser_MapperUser extends PluginPhpbb_Inherits_ModuleUser_
             return array();
         }
 
-        $sForumUserTable = '`' . Config::Get('plugin.phpbb.forum.dbname') . '`.' . Config::Get('plugin.phpbb.forum.user_table');
+        $sForumUserTable = '`' . Config::Get('plugin.phpbb.phpbb.dbname') . '`.' . Config::Get('plugin.phpbb.phpbb.table_prefix') . 'users';
 
         $sql
             = "
@@ -33,7 +33,7 @@ class PluginPhpbb_ModuleUser_MapperUser extends PluginPhpbb_Inherits_ModuleUser_
         return $aUsers;
     }
     public function GetUserBySessionKey($sKey) {
-        $sForumSessionTable = '`' . Config::Get('plugin.phpbb.forum.dbname') . '`.' . Config::Get('plugin.phpbb.forum.session_table');
+        $sForumSessionTable = '`' . Config::Get('plugin.phpbb.phpbb.dbname') . '`.' . Config::Get('plugin.phpbb.phpbb.table_prefix') . 'sessions';
 
         $sql
             = "

@@ -2,8 +2,8 @@
 
 $config = array();
 
-$config['forum']['dbname'] = 'phpbb';
-$config['forum']['session_table'] = 'phpbb_sessions';
+$config['phpbb']['dbname'] = 'phpbb';
+$config['phpbb']['table_prefix'] = 'phpbb_';
 $config['cookie']['user_id'] = 'phpbb3_u';
 $config['cookie']['phpbb_prefix'] = 'phpbb3_';
 $config['defaults'] = array(
