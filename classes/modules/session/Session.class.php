@@ -36,15 +36,19 @@ class PluginPhpbb_ModuleSession extends PluginPhpbb_Inherit_ModuleSession {
 
         if ($this->bUseStandartSession) {
             $sSysSessionName = Config::Get('sys.session.name');
-            session_name($sSysSessionName);
-            session_set_cookie_params(
-                Config::Get('sys.session.timeout'),
-                Config::Get('sys.session.path'),
-                Config::Get('sys.session.host')
-            );
+            if(!session_id()) {
+                session_name($sSysSessionName);
+                session_set_cookie_params(
+                    Config::Get('sys.session.timeout'),
+                    Config::Get('sys.session.path'),
+                    Config::Get('sys.session.host')
+                );
+                session_start();
+            }
+
 
             //135 implement PHP standart session management
-            session_id() ? true : session_start();
+            //session_id() ? true : session_start();
             $this->sId = session_id();
             parent::SetCookie($sSysSessionName, $this->sId, Config::Get('sys.session.timeout'));
 
