@@ -1,0 +1,126 @@
+-- Внимательно адаптируйте триггеры, под вашу инсталяцию.
+-- Во-первых, одинаково настройте ключи (alto_key и phpbb_key) в триггерах обоих БД (Alto и phpBB),
+-- во-вторых, обратите внимание, что значение поле session_page захардкодено в теле триггеров - настройте его содержимое по своему вкусу,
+-- в-третьих, настройте ссылки на БД противоположных систем (обращения к таблицам phpBB из Alto и наоборот) - ищите все "FROM ..",
+-- в-четвёртых, а на самом деле в самых первых - НЕ ЛЕЗЬТЕ ЕСЛИ НЕ ПОНИМАЕТЕ! Потратьте 500/1000 рублей на услуги понимающего человека.
+-- В-пятых, если вы провалились до этого ELSEIF, то сами понимаете, что пользователи СУБД должны иметь права к смежным системам,
+-- в том числе и к триггерам (в идеале один пользователь БД и для Alto и для phpBB.
+DROP TRIGGER IF EXISTS `prefix_session_before_insert`;
+DROP TRIGGER IF EXISTS `prefix_session_before_update`;
+
+DELIMITER ;;
+CREATE TRIGGER `prefix_session_before_insert` BEFORE INSERT ON `prefix_session` FOR EACH ROW run: BEGIN
+ DECLARE phpbb_user_id integer DEFAULT NULL;
+ DECLARE phpbb_last_login integer DEFAULT 0;
+ DECLARE phpbb_view_online numeric DEFAULT 1;
+ DECLARE alto_key VARCHAR(50) DEFAULT 'alto'; -- ключ, по которому определяется реплицируемая сессия со стороны Alto.
+ DECLARE phpbb_key VARCHAR(50) DEFAULT 'phpbb'; -- ключ, по которому Alto определит реплицируемую сессию со стороны phpBB.
+
+ -- Защита от петли. Если сессия реплицируется со стороны phpBB, обратная репликация не нужна!
+ IF NEW.session_agent_hash LIKE CONCAT(phpbb_key, '%') THEN
+  SET NEW.session_agent_hash = '';
+  LEAVE run;
+ END IF;
+
+ -- Достаём пользовательские данные для репликации сессии. Связка c phpBB идёт по username.
+ SELECT phpbb_users.user_id, phpbb_k.last_login, phpbb_users.user_allow_viewonline
+  INTO phpbb_user_id, phpbb_last_login, phpbb_view_online
+  FROM alto.prefix_user alto_users
+  LEFT JOIN phpbb.phpbb_users phpbb_users ON alto_users.user_login = phpbb_users.username
+  LEFT JOIN phpbb.phpbb_sessions_keys phpbb_k ON phpbb_users.user_id = phpbb_k.user_id
+  WHERE alto_users.user_id = NEW.user_id ORDER BY phpbb_k.last_login DESC LIMIT 1;
+
+ -- Если в phpBB нет такого пользователя - реплицировать нечего, выходим...
+ IF phpbb_user_id IS NULL THEN LEAVE run; END IF;
+
+ -- Костыль Null/0
+ IF phpbb_last_login IS NULL THEN SET phpbb_last_login = 0; END IF;
+
+ -- Собственно реплицируем сессию в phpBB
+ INSERT INTO phpbb.phpbb_sessions (
+     session_id,
+     session_user_id,
+     session_forum_id,
+     session_last_visit,
+     session_start,
+     session_time,
+     session_ip,
+     session_browser,
+     session_forwarded_for,
+     session_page,
+     session_viewonline,
+     session_autologin,
+     session_admin
+     )
+  VALUES (
+      NEW.session_key,
+      phpbb_user_id,
+      0,
+      phpbb_last_login,
+      UNIX_TIMESTAMP(NEW.session_date_create),
+      UNIX_TIMESTAMP(NEW.session_date_last),
+      NEW.session_ip_last,
+      alto_key, -- session_browser
+      alto_key, -- session_forwarded_for
+      'http://4x4krasnodar.ru/', -- session_page
+      phpbb_view_online,
+      1,
+      0)
+  ON DUPLICATE KEY UPDATE
+      session_user_id = phpbb_user_id,
+      session_forum_id = 0,
+      session_time = UNIX_TIMESTAMP(NEW.session_date_last),
+      session_forwarded_for = alto_key,
+      session_page = 'http://4x4krasnodar.ru';
+
+ -- Обновляем связанные данные. Обычная практика для PHP+MySQL - делать это вручную...
+ UPDATE phpbb.phpbb_users SET user_lastpage = 'http://4x4krasnodar.ru/', user_actkey = alto_key WHERE user_id = phpbb_user_id;
+END ;;
+
+CREATE TRIGGER `prefix_session_before_update` BEFORE UPDATE ON `prefix_session` FOR EACH ROW run: BEGIN
+ DECLARE phpbb_user_id integer DEFAULT NULL;
+ DECLARE phpbb_last_login integer DEFAULT 0;
+ DECLARE phpbb_view_online numeric DEFAULT 1;
+ DECLARE trigger_key varchar(15) DEFAULT 'alto';
+ DECLARE alto_key VARCHAR(50) DEFAULT 'alto'; -- ключ, по которому определяется реплицируемая сессия со стороны Alto.
+ DECLARE phpbb_key VARCHAR(50) DEFAULT 'phpbb'; -- ключ, по которому Alto определит реплицируемую сессию со стороны phpBB.
+
+ -- Защита от петли. Если сессия реплицируется со стороны phpBB, обратная репликация не нужна!
+ IF NEW.session_agent_hash LIKE CONCAT(phpbb_key, '%') THEN
+  SET NEW.session_agent_hash = OLD.session_agent_hash;
+  LEAVE run;
+ END IF;
+
+ -- Достаём пользовательские данные для репликации сессии. Связка c phpBB идёт по username.
+ SELECT phpbb_users.user_id, phpbb_k.last_login, phpbb_users.user_allow_viewonline INTO phpbb_user_id, phpbb_last_login, phpbb_view_online
+ FROM alto.prefix_user alto_users
+  LEFT JOIN phpbb.phpbb_users phpbb_users ON alto_users.user_login = phpbb_users.username
+  LEFT JOIN phpbb.phpbb_sessions_keys phpbb_k ON phpbb_users.user_id = phpbb_k.user_id
+  WHERE alto_users.user_id = NEW.user_id ORDER BY phpbb_k.last_login DESC LIMIT 1;
+
+ -- Если в phpBB нет такого пользователя - реплицировать нечего, выходим...
+ IF phpbb_user_id IS NULL THEN LEAVE run; END IF;
+
+ -- Если сессия завершается, то (ШАГ1) сначала через trigger_key передаём это в базу phpBB... см. (ШАГ2)
+ IF NEW.session_exit IS NOT NULL THEN SET trigger_key =  CONCAT(alto_key, '_exit'); END IF;
+
+ -- Собственно в любом случае (завершение или пролонгация) реплицируем сессию в phpBB.
+ UPDATE phpbb.phpbb_sessions SET
+      session_user_id = phpbb_user_id,
+      session_forum_id = 0,
+      session_time = UNIX_TIMESTAMP(NEW.session_date_last),
+      session_forwarded_for = alto_key,
+      session_page = 'http://4x4krasnodar.ru'
+ WHERE session_id = NEW.session_key;
+
+ -- см. (ШАГ1) .. и только потом (ШАГ2) - удаляем сессию. Если начать просто удалять сессию, то триггер на удаление в phpBB
+ -- не поймёт что это реплицируемое завершение и в свою очередь начнёт реплицироваться обратно в Alto.
+ -- На первый взгляд это может показаться через жопу, но на второй и третий вы поймёте,
+ -- что в PHP+MySQL+phpBB дендрофекальные методы есть всё: и фундамент, и стройматериал, и клей...
+ IF trigger_key = CONCAT(alto_key, '_exit') THEN
+  DELETE FROM phpbb.phpbb_sessions WHERE session_id = NEW.session_key;
+ END IF;
+
+ -- Но не будем о грустном и обновим связанные данные. Обычная практика для PHP+MySQL - делать это вручную...
+ UPDATE phpbb.phpbb_users SET user_lastpage = 'http://4x4krasnodar.ru/', user_actkey = alto_key WHERE user_id = phpbb_user_id;
+END ;;
